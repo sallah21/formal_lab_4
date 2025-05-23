@@ -495,77 +495,30 @@ module dut_toplevel__imp #(
   //---------------------------------------------------------------------------
   // indicator of arbitrating of a transfer from the input interface 0
   //---------------------------------------------------------------------------
-  always_comb
-    begin
-    case (in0_arb_mode_id_en_r)
-      //-----
-      1'b0:
-        // simple round robin:
-        arb_in0_transferring_c = !fifo_full_c &&
-                                 in0_valid_r &&
-                                 ((arb_last_data_source_id_r == 2'b10) ||
-                                  ((arb_last_data_source_id_r == 2'b01) && !in2_valid_r) ||
-                                  ((arb_last_data_source_id_r == 2'b00) && !in1_valid_r && !in2_valid_r));
-      //-----
-      1'b1:
-        // not supported arbitration mode:
-        arb_in0_transferring_c = 1'b0;
-      //-----
-      default:
-        arb_in0_transferring_c = {ARB_MODE_ID_WIDTH{1'bx}};
-      //-----
-    endcase
-    end
-
+  assign arb_in0_transferring_c = (in0_arb_mode_id_en_r == 1'b0) && !fifo_full_c &&
+                            in0_valid_r &&
+                            ((arb_last_data_source_id_r == 2'b10) ||
+                            ((arb_last_data_source_id_r == 2'b01) && !in2_valid_r) ||
+                            ((arb_last_data_source_id_r == 2'b00) && !in1_valid_r && !in2_valid_r));
   //---------------------------------------------------------------------------
   // indicator of arbitrating of a transfer from the input interface 1
   //---------------------------------------------------------------------------
-  always_comb
-    begin
-    case (in1_arb_mode_id_en_r)
-      //-----
-      1'b0:
-        // simple round robin:
-        arb_in1_transferring_c = !fifo_full_c &&
-                                 in1_valid_r &&
-                                 ((arb_last_data_source_id_r == 2'b00) ||
-                                  ((arb_last_data_source_id_r == 2'b10) && !in0_valid_r) ||
-                                  ((arb_last_data_source_id_r == 2'b01) && !in2_valid_r && !in0_valid_r));
-      //-----
-      1'b1:
-        // not supported arbitration mode:
-        arb_in1_transferring_c = 1'b0;
-      //-----
-      default:
-        arb_in1_transferring_c = {ARB_MODE_ID_WIDTH{1'bx}};
-      //-----
-    endcase
-    end
+  assign arb_in1_transferring_c = (in1_arb_mode_id_en_r == 1'b0) && !fifo_full_c &&
+                            in1_valid_r &&
+                            ((arb_last_data_source_id_r == 2'b00) ||
+                            ((arb_last_data_source_id_r == 2'b10) && !in0_valid_r) ||
+                            ((arb_last_data_source_id_r == 2'b01) && !in2_valid_r && !in0_valid_r));
+
 
   //---------------------------------------------------------------------------
   // indicator of arbitrating of a transfer from the input interface 2
   //---------------------------------------------------------------------------
-  always_comb
-    begin
-    case (in2_arb_mode_id_en_r)
-      //-----
-      1'b0:
-        // simple round robin:
-        arb_in2_transferring_c = !fifo_full_c &&
-                                 in2_valid_r &&
-                                 ((arb_last_data_source_id_r == 2'b01) ||
-                                  ((arb_last_data_source_id_r == 2'b00) && !in1_valid_r) ||
-                                  ((arb_last_data_source_id_r == 2'b10) && !in0_valid_r && !in1_valid_r));
-      //-----
-      1'b1:
-        // not supported arbitration mode:
-        arb_in2_transferring_c = 1'b0;
-      //-----
-      default:
-        arb_in2_transferring_c = {ARB_MODE_ID_WIDTH{1'bx}};
-      //-----
-    endcase
-    end
+
+  assign arb_in2_transferring_c =(in2_arb_mode_id_en_r == 1'b0) && !fifo_full_c &&
+                            in2_valid_r &&
+                            ((arb_last_data_source_id_r == 2'b01) ||
+                            ((arb_last_data_source_id_r == 2'b00) && !in1_valid_r) ||
+                            ((arb_last_data_source_id_r == 2'b10) && !in0_valid_r && !in1_valid_r));
 
   //---------------------------------------------------------------------------
   // indicator of any data being transferred through the arbiter
