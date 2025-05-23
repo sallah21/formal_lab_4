@@ -93,11 +93,11 @@ module dut_toplevel__sec_wrapper #(
         // processing control interface:
         .proc_req                           (proc_req),
         .proc_req_in0_en                    (proc_req_in0_en),
-        .proc_req_in0_arb_mode_id           (proc_req_in0_arb_mode_id),
+        .proc_req_in0_arb_mode_id           (!proc_req_in0_arb_mode_id),
         .proc_req_in1_en                    (proc_req_in1_en),
-        .proc_req_in1_arb_mode_id           (proc_req_in1_arb_mode_id),
+        .proc_req_in1_arb_mode_id           (!proc_req_in1_arb_mode_id),
         .proc_req_in2_en                    (proc_req_in2_en),
-        .proc_req_in2_arb_mode_id           (proc_req_in2_arb_mode_id),
+        .proc_req_in2_arb_mode_id           (!proc_req_in2_arb_mode_id),
         .proc_ack                           (proc_ack__spec),
         // input interface 0:
         .in0_valid                          (in0_valid),

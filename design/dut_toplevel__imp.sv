@@ -495,7 +495,7 @@ module dut_toplevel__imp #(
   //---------------------------------------------------------------------------
   // indicator of arbitrating of a transfer from the input interface 0
   //---------------------------------------------------------------------------
-  assign arb_in0_transferring_c = (in0_arb_mode_id_en_r == 1'b0) && !fifo_full_c &&
+  assign arb_in0_transferring_c = (in0_arb_mode_id_en_r == 1'b1) && !fifo_full_c &&
                             in0_valid_r &&
                             ((arb_last_data_source_id_r == 2'b10) ||
                             ((arb_last_data_source_id_r == 2'b01) && !in2_valid_r) ||
@@ -503,7 +503,7 @@ module dut_toplevel__imp #(
   //---------------------------------------------------------------------------
   // indicator of arbitrating of a transfer from the input interface 1
   //---------------------------------------------------------------------------
-  assign arb_in1_transferring_c = (in1_arb_mode_id_en_r == 1'b0) && !fifo_full_c &&
+  assign arb_in1_transferring_c = (in1_arb_mode_id_en_r == 1'b1) && !fifo_full_c &&
                             in1_valid_r &&
                             ((arb_last_data_source_id_r == 2'b00) ||
                             ((arb_last_data_source_id_r == 2'b10) && !in0_valid_r) ||
@@ -514,7 +514,7 @@ module dut_toplevel__imp #(
   // indicator of arbitrating of a transfer from the input interface 2
   //---------------------------------------------------------------------------
 
-  assign arb_in2_transferring_c =(in2_arb_mode_id_en_r == 1'b0) && !fifo_full_c &&
+  assign arb_in2_transferring_c =(in2_arb_mode_id_en_r == 1'b1) && !fifo_full_c &&
                             in2_valid_r &&
                             ((arb_last_data_source_id_r == 2'b01) ||
                             ((arb_last_data_source_id_r == 2'b00) && !in1_valid_r) ||
