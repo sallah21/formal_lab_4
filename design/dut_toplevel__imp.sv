@@ -30,7 +30,7 @@ module dut_toplevel__imp #(
   // local parameters used in port definitions:
   localparam ARB_MODES_NUM                  = 2,                               // number of supported arbitration modes
   localparam ARB_MODE_ID_WIDTH              = (ARB_MODES_NUM == 1) ? 1 : $clog2(ARB_MODES_NUM),        // width of an ID of an arbitration mode
-  localparam IN_INTERFACES_NUM              = 3,                               // number of supported input interfaces
+  localparam IN_INTERFACES_NUM              = 2,                               // number of supported input interfaces
   localparam IN_INTERFACE_ID_WIDTH          = (IN_INTERFACES_NUM == 1) ? 1 : $clog2(IN_INTERFACES_NUM) // width of an ID of an input interface
 )(
   // clocks and resets:
@@ -42,8 +42,6 @@ module dut_toplevel__imp #(
   input logic       [ARB_MODE_ID_WIDTH-1:0] proc_req_in0_arb_mode_id,          // input interface 0 - arbitration mode ID
   input logic                               proc_req_in1_en,                   // input interface 1 - enable flag
   input logic       [ARB_MODE_ID_WIDTH-1:0] proc_req_in1_arb_mode_id,          // input interface 1 - arbitration mode ID
-  input logic                               proc_req_in2_en,                   // input interface 2 - enable flag
-  input logic       [ARB_MODE_ID_WIDTH-1:0] proc_req_in2_arb_mode_id,          // input interface 2 - arbitration mode ID
   output logic                              proc_ack,                          // processing acknowledgement
   // input interface 0:
   input logic                               in0_valid,                         // valid flag
@@ -55,11 +53,6 @@ module dut_toplevel__imp #(
   output logic                              in1_ready,                         // ready flag
   input logic              [DATA_WIDTH-1:0] in1_data,                          // data
   input logic                               in1_data_last,                     // indicator of last data in a frame
-  // input interface 2:
-  input logic                               in2_valid,                         // valid flag
-  output logic                              in2_ready,                         // ready flag
-  input logic              [DATA_WIDTH-1:0] in2_data,                          // data
-  input logic                               in2_data_last,                     // indicator of last data in a frame
   // output interface:
   output logic                              out_valid,                         // valid flag
   input logic                               out_ready,                         // ready flag
@@ -91,14 +84,12 @@ module dut_toplevel__imp #(
   logic             [ARB_MODE_ID_WIDTH-1:0] in0_arb_mode_id_en_nxt_c;          // next state of the in0_arb_mode_id_en_r register
   logic                                     in1_en_nxt_c;                      // next state of the in1_en_r register
   logic             [ARB_MODE_ID_WIDTH-1:0] in1_arb_mode_id_en_nxt_c;          // next state of the in1_arb_mode_id_en_r register
-  logic                                     in2_en_nxt_c;                      // next state of the in2_en_r register
-  logic             [ARB_MODE_ID_WIDTH-1:0] in2_arb_mode_id_en_nxt_c;          // next state of the in2_arb_mode_id_en_r register
+
   logic                                     in0_en_r;                          // input interface 0 - enable flag - register
   logic             [ARB_MODE_ID_WIDTH-1:0] in0_arb_mode_id_en_r;              // input interface 0 - arbitration mode ID - register
   logic                                     in1_en_r;                          // input interface 1 - enable flag - register
   logic             [ARB_MODE_ID_WIDTH-1:0] in1_arb_mode_id_en_r;              // input interface 1 - arbitration mode ID - register
-  logic                                     in2_en_r;                          // input interface 2 - enable flag - register
-  logic             [ARB_MODE_ID_WIDTH-1:0] in2_arb_mode_id_en_r;              // input interface 2 - arbitration mode ID - register
+
   //-----
   logic                                     proc_ack_en_c;                     // enable flag for the proc_ack_r register
   logic                                     proc_ack_nxt_c;                    // next state of the proc_ack_r register
@@ -136,28 +127,13 @@ module dut_toplevel__imp #(
   logic                    [DATA_WIDTH-1:0] in1_data_r;                        // internally registered data from input interface 1 - register
   logic                                     in1_data_last_r;                   // internally registered indicator of last data in a frame from input interface 1
 
-  //---------------------------------------------------------------------------
-  // input interface 2 control logic
-  //---------------------------------------------------------------------------
-  logic                                     in2_ready_c;                       // ready flag of input interface 2
-  logic                                     in2_transferring_c;                // flag indicating that data is being transferred through the input interface 2
-  //-----
-  logic                                     in2_valid_en_c;                    // enable flag for the in2_valid_r register
-  logic                                     in2_valid_nxt_c;                   // next state of the in2_valid_r register
-  logic                                     in2_valid_r;                       // indicator of valid data from input interface 2 in an internal register - register
-  //-----
-  logic                                     in2_data_en_c;                     // enable flag for registers storing internally registered data from input interface 2
-  logic                    [DATA_WIDTH-1:0] in2_data_nxt_c;                    // next state of the in2_data_r register
-  logic                                     in2_data_last_nxt_c;               // next state of the in2_data_last_r register
-  logic                    [DATA_WIDTH-1:0] in2_data_r;                        // internally registered data from input interface 2 - register
-  logic                                     in2_data_last_r;                   // internally registered indicator of last data in a frame from input interface 2
+
 
   //---------------------------------------------------------------------------
   // arbitration control logic
   //---------------------------------------------------------------------------
   logic                                     arb_in0_transferring_c;            // indicator of arbitrating of a transfer from the input interface 0
   logic                                     arb_in1_transferring_c;            // indicator of arbitrating of a transfer from the input interface 1
-  logic                                     arb_in2_transferring_c;            // indicator of arbitrating of a transfer from the input interface 2
   //-----
   logic                                     arb_transferring_c;                // indicator of any data being transferred through the arbiter
   //-----
@@ -244,8 +220,7 @@ module dut_toplevel__imp #(
   assign in0_arb_mode_id_en_nxt_c = proc_req_in0_arb_mode_id;
   assign in1_en_nxt_c             = proc_req_in1_en;
   assign in1_arb_mode_id_en_nxt_c = proc_req_in1_arb_mode_id;
-  assign in2_en_nxt_c             = proc_req_in2_en;
-  assign in2_arb_mode_id_en_nxt_c = proc_req_in2_arb_mode_id;
+
   // registers:
   always_ff @(posedge clk or negedge nreset)
     begin
@@ -255,8 +230,6 @@ module dut_toplevel__imp #(
       in0_arb_mode_id_en_r <= {ARB_MODE_ID_WIDTH{1'b0}};
       in1_en_r             <= 1'b0;
       in1_arb_mode_id_en_r <= {ARB_MODE_ID_WIDTH{1'b0}};
-      in2_en_r             <= 1'b0;
-      in2_arb_mode_id_en_r <= {ARB_MODE_ID_WIDTH{1'b0}};
       end
     else if (proc_req_params_en_c)
       begin
@@ -264,8 +237,6 @@ module dut_toplevel__imp #(
       in0_arb_mode_id_en_r <= in0_arb_mode_id_en_nxt_c;
       in1_en_r             <= in1_en_nxt_c;
       in1_arb_mode_id_en_r <= in1_arb_mode_id_en_nxt_c;
-      in2_en_r             <= in2_en_nxt_c;
-      in2_arb_mode_id_en_r <= in2_arb_mode_id_en_nxt_c;
       end
     end
 
@@ -277,8 +248,7 @@ module dut_toplevel__imp #(
                           (!first_cycle_of_proc_req_c &&
                            (out_last_data_sent_r ||
                             (!in0_en_r &&
-                             !in1_en_r &&
-                             !in2_en_r)));
+                             !in1_en_r)));
   // next state of the register:
   assign proc_ack_nxt_c = proc_req;
   // register:
@@ -422,71 +392,6 @@ module dut_toplevel__imp #(
       end
     end
 
-  //===========================================================================
-  // input interface 2 control logic
-  //===========================================================================
-
-  //---------------------------------------------------------------------------
-  // ready flag of input interface 2
-  //---------------------------------------------------------------------------
-  assign in2_ready_c = !first_cycle_of_proc_req_c &&
-                       in2_en_r &&
-                       !in2_data_last_r &&
-                       (!in2_valid_r ||
-                        arb_in2_transferring_c);
-
-  //---------------------------------------------------------------------------
-  // flag indicating that data is being transferred through the input
-  //   interface 0
-  //---------------------------------------------------------------------------
-  assign in2_transferring_c = in2_ready_c &&
-                              in2_valid;
-
-  //---------------------------------------------------------------------------
-  // indicator of valid data from input interface 2 in an internal register -
-  //   register
-  //---------------------------------------------------------------------------
-  // register enable flag:
-  assign in2_valid_en_c  = !in2_valid_r ||
-                           arb_in2_transferring_c;
-  // next state of the register:
-  assign in2_valid_nxt_c = in2_transferring_c;
-  // register:
-  always_ff @(posedge clk or negedge nreset)
-    begin
-    if (!nreset)
-      in2_valid_r <= 1'b0;
-    else if (in2_valid_en_c)
-      in2_valid_r <= in2_valid_nxt_c;
-    end
-
-  //---------------------------------------------------------------------------
-  // internally registered data from input interface 2 - registers
-  //---------------------------------------------------------------------------
-  // this internally registered indicator of last data in a frame is kept high
-  //   from the time of a last data transfer to the beginning of a next frame;
-  //   that is why, it can be used to block next transfers (after last data)
-  //-----------------------------------
-  // registers enable flag:
-  assign in2_data_en_c       = first_cycle_of_proc_req_c ||
-                               in2_transferring_c;
-  // next states of the registers:
-  assign in2_data_nxt_c      = in2_data;
-  assign in2_data_last_nxt_c = (first_cycle_of_proc_req_c) ? 1'b0 : in2_data_last;
-  // registers:
-  always_ff @(posedge clk or negedge nreset)
-    begin
-    if (!nreset)
-      begin
-      in2_data_r      <= {DATA_WIDTH{1'b0}};
-      in2_data_last_r <= 1'b0;
-      end
-    else if (in2_data_en_c)
-      begin
-      in2_data_r      <= in2_data_nxt_c;
-      in2_data_last_r <= in2_data_last_nxt_c;
-      end
-    end
 
   //===========================================================================
   // arbitration control logic
@@ -497,42 +402,27 @@ module dut_toplevel__imp #(
   //---------------------------------------------------------------------------
   assign arb_in0_transferring_c = (in0_arb_mode_id_en_r == 1'b1) && !fifo_full_c &&
                             in0_valid_r &&
-                            ((arb_last_data_source_id_r == 2'b10) ||
-                            ((arb_last_data_source_id_r == 2'b01) && !in2_valid_r) ||
-                            ((arb_last_data_source_id_r == 2'b00) && !in1_valid_r && !in2_valid_r));
+                            (arb_last_data_source_id_r == 1'b1 ||
+                            (arb_last_data_source_id_r == 1'b0 && !in1_valid_r));
   //---------------------------------------------------------------------------
   // indicator of arbitrating of a transfer from the input interface 1
   //---------------------------------------------------------------------------
   assign arb_in1_transferring_c = (in1_arb_mode_id_en_r == 1'b1) && !fifo_full_c &&
                             in1_valid_r &&
-                            ((arb_last_data_source_id_r == 2'b00) ||
-                            ((arb_last_data_source_id_r == 2'b10) && !in0_valid_r) ||
-                            ((arb_last_data_source_id_r == 2'b01) && !in2_valid_r && !in0_valid_r));
-
-
-  //---------------------------------------------------------------------------
-  // indicator of arbitrating of a transfer from the input interface 2
-  //---------------------------------------------------------------------------
-
-  assign arb_in2_transferring_c =(in2_arb_mode_id_en_r == 1'b1) && !fifo_full_c &&
-                            in2_valid_r &&
-                            ((arb_last_data_source_id_r == 2'b01) ||
-                            ((arb_last_data_source_id_r == 2'b00) && !in1_valid_r) ||
-                            ((arb_last_data_source_id_r == 2'b10) && !in0_valid_r && !in1_valid_r));
+                            (arb_last_data_source_id_r == 1'b0 ||
+                            (arb_last_data_source_id_r == 1'b1 && !in0_valid_r));
 
   //---------------------------------------------------------------------------
   // indicator of any data being transferred through the arbiter
   //---------------------------------------------------------------------------
   assign arb_transferring_c = arb_in0_transferring_c ||
-                              arb_in1_transferring_c ||
-                              arb_in2_transferring_c;
+                              arb_in1_transferring_c;
 
   //---------------------------------------------------------------------------
   // arbitrated data
   //---------------------------------------------------------------------------
   assign arb_data_c = (arb_in0_transferring_c) ? in0_data_r :
-                      (arb_in1_transferring_c) ? in1_data_r :
-                                                 in2_data_r;
+                                                 in1_data_r;
 
   //---------------------------------------------------------------------------
   // indicator that arbitrated data is last data in a frame
@@ -544,18 +434,13 @@ module dut_toplevel__imp #(
                            (!in1_en_r ||
                             (in1_data_last_r &&
                              (!in1_valid_r ||
-                              arb_in1_transferring_c))) &&
-                           (!in2_en_r ||
-                            (in2_data_last_r &&
-                             (!in2_valid_r ||
-                              arb_in2_transferring_c)));
+                              arb_in1_transferring_c)));
 
   //---------------------------------------------------------------------------
   // arbitrated source (input interface) ID
   //---------------------------------------------------------------------------
-  assign arb_data_source_id_c = (arb_in0_transferring_c) ? 2'b00 :
-                                (arb_in1_transferring_c) ? 2'b01 :
-                                                           2'b10;
+  assign arb_data_source_id_c = (arb_in0_transferring_c) ? 1'b0 :
+                                                           1'b1;
 
   //---------------------------------------------------------------------------
   // lastly arbitrated source (input interface) ID - register
@@ -566,7 +451,7 @@ module dut_toplevel__imp #(
   // next state of the register:
   assign arb_last_data_source_id_nxt_c = (first_cycle_of_proc_req_c) ?
                                          // reset at the beginning of processing:
-                                              2'b10 :
+                                              1'b1 :
                                          // normal processing:
                                               arb_data_source_id_c;
   // register:
@@ -760,11 +645,6 @@ module dut_toplevel__imp #(
   // outputs of the input interface 1
   //---------------------------------------------------------------------------
   assign in1_ready          = in1_ready_c;
-
-  //---------------------------------------------------------------------------
-  // outputs of the input interface 2
-  //---------------------------------------------------------------------------
-  assign in2_ready          = in2_ready_c;
 
   //---------------------------------------------------------------------------
   // outputs of the output interface
